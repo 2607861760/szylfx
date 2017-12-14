@@ -1,0 +1,317 @@
+/* 全局公共样式 包含对框架组件的重置 */
+
+// 公共变量 和函数
+@import '~common/scss/public/base-url';
+
+/* 基础公共 */
+
+.clear {
+    @include clear;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.omiss {
+    @include omiss;
+}
+
+
+/* 组件重置 */
+
+
+/* element-ui 表格 */
+
+.el-table {
+    // 默认不设置高度
+    & {
+        overflow: visible;
+    }
+    // 表格头部和内容高度
+    th,
+    td {
+        height: $table-tr-height;
+        .cell{
+            text-align: center;
+        }
+    }
+}
+
+// 固定表头
+.table-fixed {
+    &,
+    .el-table__body-wrapper {
+        overflow: auto;
+    }
+}
+
+// 表格行鼠标移入
+.el-table--enable-row-hover {
+    .el-table__body {
+        tr:hover {
+            >td {
+                background-color: #fff;
+            }
+        }
+    }
+}
+
+// 自定义表格大小
+.table-btn {
+    padding: 4px 15px;
+}
+
+
+/* 树形表格 */
+
+.el-table {
+    // 二级菜单
+    .table-menu-1 {
+        padding-left: 20px;
+    }
+    // 三级菜单
+    .table-menu-2 {
+        padding-left: 40px;
+    }
+    // 四级菜单
+    .table-menu-3 {
+        padding-left: 40px;
+    }
+    // iview下拉菜单样式
+    .ivu-dropdown {
+        .ivu-select-dropdown {
+            margin-bottom: 60px;
+        }
+    }
+}
+
+
+/* 表格文字过多样式 */
+
+.dictDesc {
+    padding: 10px;
+    width: 18em;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* 弹出对话框 */
+
+.ivu-modal-wrap {
+    .ivu-modal {
+        top: 0;
+        margin: 60px auto;
+    }
+}
+
+
+/* 居中弹出框 */
+
+.ivu-modal-center-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .ivu-modal {
+        top: 0;
+    }
+    .ivu-modal {
+        margin-bottom: 0;
+    }
+}
+
+// 弹出框底部
+.ivu-modal-footer {
+    border-top: 0;
+    .ivu-btn {
+        width: 80px;
+    }
+    // text-align: center;
+}
+//自定义 弹出框底部样式
+.foot-btn {
+    padding: 10px 0;
+    text-align:center;
+    .ivu-btn.ivu-btn-primary.ivu-btn-circle {
+        width: 250px;
+    }
+}
+// 弹出框头部
+.ivu-modal-header {
+    background: $modal-color;
+    border-bottom: 0;
+    p,
+    .ivu-modal-header-inner {
+        color: #fff;
+        font-size: 18px;
+        font-weight: normal;
+        text-align: center;
+    }
+}
+
+// 弹出框头部关闭按钮
+.ivu-modal-close {
+    top: 2px;
+    .ivu-icon-ios-close-empty {
+        color: lighten($modal-color, 40%);
+        font-size: 40px;
+        &:hover {
+            color: #fff;
+        }
+    }
+}
+
+
+/* 居中容器 */
+
+.container {
+    margin: 0 auto;
+    @media (min-width: 768px) {
+        // width: 750px;
+    }
+    @media (min-width: 992px) {
+        // width: 970px;
+    }
+    @media (min-width: 1200px) {
+        width: 1200px;
+    }
+}
+
+// 弹出框内容
+.ivu-modal-body {
+    padding: 24px;
+    // 弹框中的表格
+    .el-table {
+        margin-top: 20px;
+    }
+}
+
+
+/* 表单 */
+.ivu-form{
+    margin-top:30px;
+}
+.ivu-btn{
+    padding:6px 50px;
+}
+.ivu-form-item {
+    margin-bottom: 0;
+    + .ivu-form-item {
+        margin-top: 25px;
+    }
+    // 文字
+    .ivu-form-item-label {
+        font-size: $form-font-size;
+        padding-top: ($form-item-height - $form-font-size) / 2;
+    }
+    // 输入框
+    .ivu-input,
+    .ivu-form-item-content {
+        font-size: $form-font-size;
+        min-height: $form-item-height;
+        line-height: $form-item-height;
+    }
+    .ivu-form-item-content{
+        width: $form-item-width;
+    }
+    .ivu-input-icon {
+        width: $form-item-height;
+        height: $form-item-height;
+        line-height: $form-item-height;
+    }
+    .ivu-input-group-prepend{
+        background: $form-item-bg-color;
+        padding: 0;
+        width:$form-item-width/9.33;
+        color: #666;
+        border-radius:4px;
+        font-size: $form-font-size/0.875;
+    }
+    
+    // 下拉菜单
+    .ivu-select-single {
+        .ivu-select-selection {
+            &,
+            .ivu-select-placeholder,
+            .ivu-select-selected-value {
+                font-size: $form-font-size;
+                height: $form-item-height;
+            }
+            .ivu-select-placeholder,
+            .ivu-select-selected-value {
+                line-height: $form-item-height;
+            }
+        }
+    }
+    .ivu-select-input {
+        height: $form-item-height;
+    }
+    // 日期选择
+    .ivu-date-picker {
+        width: 100%;
+    }
+}
+
+
+/* 分页 */
+.base-page-menu {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+}
+
+/* 面包屑导航 */
+.base-crumbs {
+    padding: 10px 0;
+    background: #f7f7f7;
+    .ivu-breadcrumb {
+        a {
+            font-size: 12px;
+            color: #666;
+            &:hover {
+                color: $home-blue;
+            }
+        }
+        // 最后一个栏目
+        > span:last-child {
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+        }
+    }
+}
+
+/* 公共表格 */
+.base-table {
+    width: 100%;
+    max-width: 100%;
+    // 表格单元
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th,
+        > td {
+          padding: 8px;
+          line-height: 1.5em;
+          vertical-align: top;
+          text-align:left;
+        }
+      }
+    }
+
+    .table-tit {
+        font-weight: bold;
+    }
+}
+//提示
+.prompt{
+    padding:5px 10px;
+}

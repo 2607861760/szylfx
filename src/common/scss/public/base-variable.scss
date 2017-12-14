@@ -1,0 +1,45 @@
+// base-variable 公共变量集
+
+///////////////////////////
+//////// 公共基础 /////////
+///////////////////////////
+
+// 弹出框主题颜色
+$modal-color          : #457aae;
+// 边框颜色
+$border-color         : #dfe6ec;
+
+// 表单项目
+$form-item-height     : 33px;
+$form-font-size       : 14px;
+$form-item-width      : 280px;
+$form-item-bg-color   : #fff;
+
+
+// 标题
+$title-height         : 50px;
+$title-bg-color       : #eef1f6;
+
+// 表格
+$table-tr-height      : $title-height;
+
+///////////////////////////
+//////// 前台官网 /////////
+///////////////////////////
+
+$home-blue: #2B3245;
+
+
+
+
+///////////////////////////
+//////// 后台管理 /////////
+///////////////////////////
+
+$admin-base-color            : #2B3245;
+// 按钮颜色
+$admin-btn-default           : #4578ad;
+// 边框颜色 灰
+$border-color-gray           : #dddee1;
+// 二级子页面主容器具体工具条的高度
+$admin-content-padding-top   : 20px;
