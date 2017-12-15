@@ -220,39 +220,38 @@ export default {
             // console.log(obj); 
             task.getTaskInfoById(obj).then((res)=> {
                 // console.log(JSON.stringify(res));
-                let obj = res.data.jobProcessDataList;
-
-                if(obj.length<=0) {
-                    this.noteShow = false;
-                }
-                else {
-                    M.each(obj,(item,index)=> {
-                        if(item.tableType == '5') {
-                            this.picLeftTitle1 = item.tableName;
-                            this.picLeftList1 = item.files;
-                        }else if(item.tableType == '6') {
-                            this.picRightTitle2 = item.tableName;
-                            this.picRightList2 = item.files;
-                        }else if(item.tableType == '7') {
-                            this.picLeftTitle3 = item.tableName;
-                            this.picLeftList3 = item.files;
-                        }else if(item.tableType == '8') {
-                            this.picRightTitle4 = item.tableName;
-                            this.picRightList4 = item.files;
-                        }else if(item.tableType == '1'){
-                            if(index==0) {
-                                this.tableListFirst = item.files[0].jsonData.data;
-                                this.tableTitleFirst = item.files[0].displayName;
-                            }else if (index==2) {
-                                
-                                this.tableListSecond = item.files[0].jsonData.data;
-                                this.tableTitleSecond = item.files[0].displayName;
+                if(res.returnCOde==0 || res.returnCode==200){
+                    let obj = res.data.jobProcessDataList;
+                    if(obj.length<=0) {
+                        this.noteShow = false;
+                    }
+                    else {
+                        M.each(obj,(item,index)=> {
+                            if(item.tableType == '5') {
+                                this.picLeftTitle1 = item.tableName;
+                                this.picLeftList1 = item.files;
+                            }else if(item.tableType == '6') {
+                                this.picRightTitle2 = item.tableName;
+                                this.picRightList2 = item.files;
+                            }else if(item.tableType == '7') {
+                                this.picLeftTitle3 = item.tableName;
+                                this.picLeftList3 = item.files;
+                            }else if(item.tableType == '8') {
+                                this.picRightTitle4 = item.tableName;
+                                this.picRightList4 = item.files;
+                            }else if(item.tableType == '1'){
+                                if(index==0) {
+                                    this.tableListFirst = item.files[0].jsonData.data;
+                                    this.tableTitleFirst = item.files[0].displayName;
+                                }else if (index==2) {
+                                    
+                                    this.tableListSecond = item.files[0].jsonData.data;
+                                    this.tableTitleSecond = item.files[0].displayName;
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
-                console.log(JSON.stringify(this.tableListSecond));
-                // console.log(this.tableListSecond)
             })
         },
     }

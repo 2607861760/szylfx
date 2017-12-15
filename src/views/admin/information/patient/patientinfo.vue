@@ -109,7 +109,7 @@
     <Modal v-model="removeModel" title="删除提示" width="300" :mask-closable="false">
         <p style="padding:20px;text-align:center;">您确定要删除这条信息吗？</p>
         <div class="fastq-footer">
-            <Button size="small" type="primary" @click="saveInfoClick">确定</Button>
+            <button size="small" type="primary" @click="saveInfoClick">确定</button>
         </div>
     </Modal>
 </div>
@@ -221,17 +221,23 @@ export default{
                 "idList":this.idList,
                 "productId":"1"
             }
-            data.deletePatientById(obj).then((data)=>{
-                if(data.data=="成功"){
-                    this.$Message.success(data.data);
-                    this.sign=false;
-                    this.$emit('signs',this.sign)
-                    this.$router.push('/admin/tumour')
-                }else{
-                    this.$Message.error(data.data);
-                }
-                this.removeModel=false;
-            })
+            console.log(1)
+            // data.deletePatientById(obj).then((data)=>{
+            //     console.log(data)
+            //     if(data.returnCode==0 || data.returnCode==200){
+            //         if(data.data=="成功"){
+            //             this.$Message.success(data.data);
+            //             this.sign=false;
+            //             this.$emit('signs',this.sign)
+            //             this.$router.push('/admin/tumour')
+            //         }else{
+            //             this.$Message.error(data.data);
+            //         }
+            //     }else{
+            //         this.$Message.error(data.msg)
+            //     }
+            //     this.removeModel=false;
+            // })
         },
         changeGender(val){  //性别改变
             this.genderId = val;
@@ -285,15 +291,19 @@ export default{
                 this.$refs[name].validate((valid) => {
                     if(valid){
                         data.addProject(this.basicInfo).then((data)=>{
-                            if(data.data=='null' || data.data==null){
-                                // this.show = true;
-                                this.$Message.error(data.msg);
-                            }else if(data.msg=="null" || data.msg==null){
-                                // this.show = true;
-                                this.$Message.error(data.data)
+                            if(data.returnCode==0 || data.returnCode==200){
+                                if(data.data=='null' || data.data==null){
+                                    // this.show = true;
+                                    this.$Message.error(data.msg);
+                                }else if(data.msg=="null" || data.msg==null){
+                                    // this.show = true;
+                                    this.$Message.error(data.data)
+                                }else{
+                                    this.paid=data.data.patient.patientid;
+                                    this.$router.push('/admin/tumour/newsample?paid='+this.paid)
+                                }
                             }else{
-                                this.paid=data.data.patient.patientid;
-                                this.$router.push('/admin/tumour/newsample?paid='+this.paid)
+                                this.$Message.error(data.msg)
                             }
                         }).catch((error)=>{
                         })
@@ -318,18 +328,22 @@ export default{
                 "diseaseparentid":this.dchdiseaseid
             }
             data.getdiseaselist(obj).then((data)=>{
-                M.each(data.data,(item,index)=>{
-                    var result={};
-                    if(item.diseaseparentid=='0'){
-                        result.value=item.dchdiseaseid;
-                        result.label=item.dchdiseasename;
-                        this.diseasename.push(result)
-                    }else{
-                        result.value=item.dchdiseaseid;
-                        result.label=item.dchdiseasename;
-                        this.diseasetype.push(result)
-                    }
-                })
+                if(data.returnCode==0 || data.returnCode==200){
+                    M.each(data.data,(item,index)=>{
+                        var result={};
+                        if(item.diseaseparentid=='0'){
+                            result.value=item.dchdiseaseid;
+                            result.label=item.dchdiseasename;
+                            this.diseasename.push(result)
+                        }else{
+                            result.value=item.dchdiseaseid;
+                            result.label=item.dchdiseasename;
+                            this.diseasetype.push(result)
+                        }
+                    })
+                }else{
+                    this.$Message.error(data.msg)
+                }
             }).catch((error)=>{
                 console.log(error)
             })
@@ -344,27 +358,32 @@ export default{
             }
             data.getProjectDetail(obj).then((data)=>{
                 console.log(JSON.stringify(data.data))
-                this.basicInfo=data.data.dchPatient;
-                this.genderId= String(data.data.dchPatient.gender);
-                this.birthday=this.basicInfo.birthday;
-                this.oldInfo=M.clone(this.basicInfo);
-                this.oldInfo.gender=this.genderId;
-                this.oldInfo.birthday=this.birthday;
-                if(this.basicInfo.lackofexercise==true){
-                    this.checks.push("lackofexercise")
+                if(data.returnCode==0 || data.returnCode==200){
+                    this.basicInfo=data.data.dchPatient;
+                    this.genderId= String(data.data.dchPatient.gender);
+                    this.birthday=this.basicInfo.birthday;
+                    this.oldInfo=M.clone(this.basicInfo);
+                    this.oldInfo.gender=this.genderId;
+                    this.oldInfo.birthday=this.birthday;
+                    if(this.basicInfo.lackofexercise==true){
+                        this.checks.push("lackofexercise")
+                    }
+                    if(this.basicInfo.secondsmoke==true){
+                        this.checks.push("secondsmoke")
+                    }
+                    if(this.basicInfo.chesthistory==true){
+                        this.checks.push("chesthistory")
+                    }
+                    if(this.basicInfo.workenviroment==true){
+                        this.checks.push("workenviroment")
+                    }
+                    if(this.basicInfo.alcoholism==true){
+                        this.checks.push("alcoholism")
+                    }
+                }else{
+                    this.$Message.error(data.msg)
                 }
-                if(this.basicInfo.secondsmoke==true){
-                    this.checks.push("secondsmoke")
-                }
-                if(this.basicInfo.chesthistory==true){
-                    this.checks.push("chesthistory")
-                }
-                if(this.basicInfo.workenviroment==true){
-                    this.checks.push("workenviroment")
-                }
-                if(this.basicInfo.alcoholism==true){
-                    this.checks.push("alcoholism")
-                }
+                
             })
         }
     },

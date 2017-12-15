@@ -41,7 +41,6 @@ html.home {
     </div>
 </template>
 <script>
-import {login} from 'api/index.js'
 import {delCookie} from '@/common/js/cookie.js'
 export default {
     data() {

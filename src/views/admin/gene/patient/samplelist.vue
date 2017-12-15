@@ -27,6 +27,12 @@
             添加样本
         </Button>
     </Dropdown>
+    <Dropdown v-if="finishBtnShow" style="float:right;margin-right:20px;">
+        <Button type="primary" class="build" @click="finish">
+        <Icon type="android-done"></Icon>
+        	完成
+    	</Button>
+    </Dropdown>
     <div style="width:100%;padding:15px 20px;box-sizing:border-box;">
         <el-table :data="samplelist" border style="width: 100%;" height="250" v-loading="listload">
             <el-table-column label="样本编号" min-width="10%">
@@ -206,8 +212,10 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
 import {getCookie} from '@/common/js/cookie.js'
 export default{
     name: "samplelist",
+    props:["flag"],
     data(){
         return {
+            finishBtnShow:true, //是否显示完成按钮
             userId:getCookie("userid"),
             sampleDataList: [],        // 样本列表弹层
             uploadDisabled:true,
@@ -369,6 +377,9 @@ export default{
                 this.$Message.error(response.msg)
             }
         },
+        finish(){//点击完成
+        	this.$router.push('/admin');
+        },
         // 上传失败
         uperror(error, file, fileList) {
             this.$Message.error(error.msg)
@@ -383,9 +394,15 @@ export default{
                 "productId":"1"
             }
             data.deleteSampleById(obj).then((data)=>{
-                this.$Message.success(data.data);
-                this.removeModel=false;
-                this.getList();
+                if(data.returnCode==0 || data.returnCode==200){
+                    this.$Message.success(data.data);
+                    this.removeModel=false;
+                    this.getList();
+                }else{
+                    this.$Message.error(data.msg);
+                    this.removeModel=false;
+                    this.getList();
+                }
             })
         },
         delet(index,row){  //删除样本 
@@ -418,9 +435,9 @@ export default{
             }
             console.log(obj)
             data.executeSample(obj).then((data)=>{
-                if(data.returnCode==200){
+                if(data.returnCode==200 || data.returnCode==0){
                     this.$Message.success("添加成功")
-                }else if(data.returnCode !=200){
+                }else{
                     this.$Message.error(data.msg)
                 }
             }) 
@@ -470,8 +487,12 @@ export default{
             }
             console.log(obj);
             data.getFileList(obj).then((res)=> {
-                console.log(res);
-                this.sampleDataList = res.data;
+                if(res.returnCode==0 || res.returnCode==200){
+                    this.sampleDataList = res.data;
+                }else{
+                    this.$Message.error(res.msg)
+                }
+                
             })
         },
         keep(name){  //点击保存
@@ -490,15 +511,18 @@ export default{
                 if(valid){
                     if(M.has(this.sampleInfo,'sampleid')==true){
                         data.updateSample(this.sampleInfo).then((data)=>{
-                            if(data.data=="null"||data.data==null){
-                                this.$Message.error("参数错误！");
+                            if(data.returnCode==0 || data.returnCode==200){
+                                if(data.data=="null"||data.data==null){
+                                    this.$Message.error("参数错误！");
+                                }else{
+                                    this.$Message.success("样本修改成功！");
+                                // this.sampleModal=false;
+                                    this.uploadDisabled = false;
+                                    this.getList();
+                                }
                             }else{
-                                this.$Message.success("样本修改成功！");
-                              // this.sampleModal=false;
-                                this.uploadDisabled = false;
-                                this.getList();
+                                this.$Message.error(data.msg);
                             }
-                            
                         })
                     }else{
                         data.addSample(this.sampleInfo).then((data)=>{                 
@@ -555,11 +579,15 @@ export default{
                 "productId":"1"
             }
             data.getForldList(obj).then((data)=>{
-                if(M.isArray(data.data)) {
-                    this.fileServerCategoryList=data.data;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileServerCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
             })
         },
         // 获得本地
@@ -574,12 +602,18 @@ export default{
             }
             data.getForldList(obj).then((data)=>{
                 // console.log(data)
-                if(M.isArray(data.data)) {
-                    this.fileCategoryList=data.data;
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileCategoryList=data.data;
+                        this.loading=false;
+                    }else {
+                        this.$Message.error(data.data)
+                        this.loading=false;
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
                     this.loading=false;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                }
             })
         },
         getList(){   //获取样本列表
@@ -595,19 +629,26 @@ export default{
             }
             data.getSampleList(obj).then((data)=>{
                 console.log(data)
-                if(data.data=="null"||data.data==null){
-                    this.listload=false;
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.data=="null"||data.data==null){
+                        this.listload=false;
+                    }else{
+                        this.samplelist=data.data;
+                        this.total=this.samplelist.length;
+                        console.log(this.samplelist);
+                        this.listload=false;
+                    }
                 }else{
-                    this.samplelist=data.data;
-                    this.total=this.samplelist.length;
-                    console.log(this.samplelist);
-                    this.listload=false;
+                    this.$Meesage.error(data.msg)
                 }
             })
         }
     },
     mounted(){
       this.getList();
+      if(this.flag && this.flag==1){
+            this.finishBtnShow=false;
+        }
     },
     components:{
         treeGrid,

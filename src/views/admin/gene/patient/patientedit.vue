@@ -63,7 +63,7 @@
             <span style="margin-left:10px;">样本信息</span>
         </div>
         <div style="padding-top:10px;">
-            <sampleList></sampleList>
+            <sampleList flag="1"></sampleList>
         </div>
     </div>
     <!--删除提示-->
@@ -133,7 +133,7 @@ export default{
                     this.sign=true;
                     this.$router.push('/admin')
                 }else{
-                    this.$Message.error(data.data);
+                    this.$Message.error(data.msg);
                 }
                 this.removeModel=false;
             })

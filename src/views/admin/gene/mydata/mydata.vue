@@ -316,6 +316,7 @@
 import {menuListToTree} from 'common/js/Base';
 import {data,task} from 'api/index.js'
 import {getCookie} from '@/common/js/cookie.js'
+import { Loading } from 'element-ui';
 import treeGrid from '@/components/treeTable/vue2/TreeGrid'
   export default{
     name: "mydata",
@@ -508,44 +509,23 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
     methods: {
         // 点击树形结构复选框
         clickCheckBtn(value) {
-            // 存放部门id
+            // console.log(JSON.stringify(value));
+            // 存放成员id
             let arr = [];
-            // 获得勾选部门的id
+            // 获得勾选成员id
             if(M.isArray(value)) {
                 M.each(value,(item)=> {
-                    arr.push(item.deptId)
-                })
-                this.queryUserByDeptId(arr);
-            }
-        },
-        // 根据部门id获得user列表
-        queryUserByDeptId(arr) {
-            // 存放userId
-            let userId = [];
-            let obj = {
-                // 去重复部门id
-                "deptId":M.uniqueArray(arr)
-            };
-            console.log(obj)
-            // 根据部门id获得部门成员
-            data.queryUserByDeptId(obj).then((res)=> {
-                console.log(res)
-                if(res.returnCode==200 || res.returnCode==0) {
-                    let deptIdArr = res.data;
-                    if(M.isArray(deptIdArr)) {
-                        // console.log(deptIdArr);
-                        M.each(deptIdArr,(item)=> {
-                            userId.push(item.dchUserId)
-                        })
-                        console.log(userId + 1111)
+                    arr.push(item.dchUserId);
+                    if(item.children && item.children.length>0) {
+                        M.each(item.children,(value)=>{
+                            arr.push(value.dchUserId);
+                        }) 
                     }
-                    console.log(userId + 2222)
-                    this.useridList = userId;
-                    console.log(this.useridList)
-                }else{
-                    this.$Message.error(res.msg)
-                }
-            })
+                })
+            }
+            // 去掉数组中的重复
+            this.useridList = M.uniqueArray(arr);
+            console.log(this.useridList);
         },
         // 表格左侧选择事件
         handleSelectionChange(value) {
@@ -621,6 +601,14 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
         // 批次改变事件
         SelectChangeData(val) {
             this.selectPcId = val? val : "All";
+            if(this.selectPcId=="All") {
+                this.showSelection = false;
+                // 按钮隐藏
+                this.batchShowBtn = false;
+                this.load();
+            }else {
+                this.clickSoltData();
+            } 
             // console.log(this.selectPcId);
         },
         // 分配数据点击事件-切换成选择表格
@@ -638,26 +626,37 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             // 根据批次获得对应数据信息
             data.getProjectListByBatchId(obj).then((res)=> {
-                // console.log(JSON.stringify(res))
-                if((res.returnCode==200 || res.returnCode==0) && res.data!=null) {
-                    this.tableData3 = res.data.projectList;
-                    M.each(this.tableData3,(item)=> {
-                        // console.log(item.dchSampleList);
-                        if(item.dchSampleList.length==0) {
-                            this.disTableSelect = true;
-                        }
-                    })
+                console.log(JSON.stringify(res))
+                if(res.returnCode==200 || res.returnCode==0) {
+                    if(res.data!=null){
+                        this.tableData3 = res.data.projectList;
+                        M.each(this.tableData3,(item)=> {
+                            // console.log(item.dchSampleList);
+                            if(item.dchSampleList.length==0) {
+                                this.disTableSelect = true;
+                            }
+                        })
+                    }else{
+                        this.tableData3=[];
+                    }
+                }else{
+                    this.$Message.error(res.msg);
+                    this.tableData3=[];
                 }
             })
         },
         // 获得组成员列表
         getDeptAndUser() {
             let obj = {
-                "userid": getCookie('userid')
+                "userId": getCookie('userid')
             }
             data.queryDeptAndUser(obj).then((res)=> {
                 // console.log(JSON.stringify(res.data));
-                this.groupMemberData = res.data;
+                if(res.returnCode==0 || res.returnCode==200){
+                    this.groupMemberData = res.data;
+                }else{
+                    this.$Message.error(res.msg)
+                }
             })
         },
         // 获得批次信息
@@ -668,7 +667,7 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             task.getBatchList(obj).then((res)=> {
                 // console.log(res);
-                if(res) {
+                if(res.returnCode==0 || res.returnCode==200) {
                     this.piciList = this.transformToSelect(res.data);
                 }
             })
@@ -708,6 +707,7 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
         // 解读跳转
         jumpTgexPage(row) {
             // console.log(row.dchPatient.patientid)
+            let loadingInstance = Loading.service({target:document.querySelector(".mydata-content")});
             let obj = {
                 "userId":getCookie("userid"),
                 paientId:row.dchPatient.patientid
@@ -725,8 +725,9 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 }else{
                     this.$Message.error(data.msg)
                 }
+                loadingInstance.close();
             }).catch((error)=>{
-
+                loadingInstance.close();
             })
         },
         clearFiles(){
@@ -767,12 +768,16 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 "productId":"1"
             }
             data.getForldList(obj).then((data)=>{
-                // console.log(data)
-                if(M.isArray(data.data)) {
-                    this.fileCategoryList=data.data;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
+                
             }).catch((error)=>{
 
             })
@@ -790,11 +795,15 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             data.getForldList(obj).then((data)=>{
                     // console.log(data)
-                if(M.isArray(data.data)) {
-                    this.fileServerCategoryList=data.data;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileServerCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
             }).catch((error)=>{
 
             })
@@ -806,19 +815,21 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             data.getTGexPara(obj).then((data)=>{
             // console.log(data.data)
-                let eklen=data.data.enrichmentkit.length;
-                M.each(data.data.enrichmentkit,(item,index)=>{
-                    var result={};
-                    result.value=item;
-                    result.label=item;
-                    this.enrichmentkit.push(result)
-                })
-                M.each(data.data.platform,(item,index)=>{
-                    var result={};
-                    result.value=item;
-                    result.label=item;
-                    this.platform.push(result)
-                })
+                if(data.returnCode==0 || data.returnCode==200){
+                    let eklen=data.data.enrichmentkit.length;
+                    M.each(data.data.enrichmentkit,(item,index)=>{
+                        var result={};
+                        result.value=item;
+                        result.label=item;
+                        this.enrichmentkit.push(result)
+                    })
+                    M.each(data.data.platform,(item,index)=>{
+                        var result={};
+                        result.value=item;
+                        result.label=item;
+                        this.platform.push(result)
+                    })
+                }
             }).catch((error)=>{
 
             })
@@ -826,10 +837,12 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
         addsample(row){//点击添加
             console.log(row)
             this.uploadDisabled = true;
-            this.patid=row.patientid;
+            this.patid=row.dchPatient.patientid;
             this.sampleEdit=true;
             this.sampleInfo={};
+            this.samid='';
             this.pull();
+            console.log(this.patid)
         },
         // 上传
         uploadSample(){
@@ -854,27 +867,36 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 if(valid){
                     if(this.sampleInfo.sampleid!=''){
                         data.updateSample(this.sampleInfo).then((data)=>{
-                            if(data.data=="null"||data.data==null){
-                                this.$Message.error("参数错误！");
+                            if(data.returnCode==0 || data.returnCode==200){
+                                if(data.data=="null"||data.data==null){
+                                    this.$Message.error("参数错误！");
+                                }else{
+                                    this.$Message.success("样本修改成功！");
+                                    this.load();
+                                    this.uploadDisabled = false;
+                                }
                             }else{
-                                this.$Message.success("样本修改成功！");
-                                this.load();
-                                this.uploadDisabled = false;
+                                this.$Message.error(data.msg)
                             }
                         }).catch((error)=>{
 
                         })
                 }else{
                     data.addSample(this.sampleInfo).then((data)=>{
-                        console.log(1)
-                        if(data.data=="null"||data.data==null){
-                            this.$Message.error("参数错误！");
+                        console.log(data)
+                        if(data.returnCode==0 || data.returnCode==200){
+                            if(data.data=="null"||data.data==null){
+                                this.$Message.error("参数错误！");
+                            }else{
+                                this.$Message.success("样本添加成功！");
+                                this.load();
+                                this.uploadDisabled = false;
+                                this.samid=data.data.sampleid;
+                            }
                         }else{
-                            this.$Message.success("样本添加成功！");
-                            this.load();
-                            this.uploadDisabled = false;
-                            this.samid=data.data.sampleid;
+                            this.$Message.error(data.msg)
                         }
+                        
                     }).catch((error)=>{
                             
                     })
@@ -889,9 +911,15 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 "productId":"1"
             }
             data.deleteSampleById(obj).then((data)=>{
-                this.$Message.success(data.data);
-                this.removeModel=false;
-                this.load();
+                if(data.returnCode==0 || data.returnCode==200){
+                    this.$Message.success(data.data);
+                    this.removeModel=false;
+                    this.load();
+                }else{
+                    this.$Message.error(data.msg);
+                    this.removeModel=false;
+                    this.load();
+                }
             }).catch((error)=>{
                             
             })
@@ -916,8 +944,11 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             if(flag){
                 flag=false;
                 data.getFileList(obj).then((data)=>{
-                    console.log(data.data)
-                    this.samplefile=data.data;
+                    if(data.returnCode==0 || data.returnCode==200){
+                        this.samplefile=data.data;
+                    }else{
+                        this.$Message.error(data.msg)
+                    }
                     flag=true;
                 }).catch((error)=>{
                             
@@ -953,11 +984,11 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 "fileGroupId":"aa",
             }
             data.executeSample(obj).then((data)=>{
-                if(data.returnCode==200){
+                if(data.returnCode==200 || data.returnCode==0){
                 // 再次获取列表
                     this.load();
                     this.$Message.success("添加成功")
-                }else if(data.returnCode !=200){
+                }else{
                     this.$Message.error(data.msg)
                 }
             }).catch((error)=>{
@@ -979,16 +1010,18 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             this.loading=true;
             data.getProjectList(obj).then((data)=>{
                 this.loadone=false;
-                if(data.data!=null){
-                    this.total=data.data.count;
-                    if(this.pageIndex==1){
-                        this.tabledata=data.data.projectList;
-                    }else{
-                        this.tabledata=this.tabledata.concat(data.data.projectList)
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.data!=null){
+                        this.total=data.data.count;
+                        if(this.pageIndex==1){
+                            this.tabledata=data.data.projectList;
+                        }else{
+                            this.tabledata=this.tabledata.concat(data.data.projectList)
+                        }
+                        this.tableData3= this.tabledata;
+                        // console.log(JSON.stringify(this.tableData3));
                     }
-                    this.tableData3= this.tabledata;
-                    // console.log(JSON.stringify(this.tableData3));
-                    }
+                }
                     this.more=true;
                     if(this.total<=20){
                         this.more=false;

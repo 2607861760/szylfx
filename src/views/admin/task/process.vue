@@ -130,14 +130,18 @@ export default {
             }
             task.getCurrentStep(obj).then((res)=> {
                 // console.log(JSON.stringify(res));
-                this.processData = res.data.execTools;
-                // 设置当前正在执行的状态
-                M.each(this.processData,(item,index)=> {
-                    if(item.status==2) {
-                        this.currentStatus= Number(index);
-                        console.log(this.currentStatus);
-                    }
-                })
+                if(res.returnCode==0 || res.returnCode==200){
+                    this.processData = res.data.execTools;
+                    // 设置当前正在执行的状态
+                    M.each(this.processData,(item,index)=> {
+                        if(item.status==2) {
+                            this.currentStatus= Number(index);
+                            console.log(this.currentStatus);
+                        }
+                    })
+                }else{
+                    this.$Message.error(res.msg)
+                }
             }) 
         }
     }

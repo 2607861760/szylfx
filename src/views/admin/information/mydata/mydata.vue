@@ -447,9 +447,15 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 "productId":"2"
             }
             data.deleteSampleById(obj).then((data)=>{
-                this.$Message.success(data.data);
-                this.removeModel=false;
-                this.load();
+                if(data.returnCode==0 || data.returnCode==200){
+                    this.$Message.success(data.data);
+                    this.removeModel=false;
+                    this.load();
+                }else{
+                    this.$Message.error(data.msg);
+                    this.removeModel=false;
+                    this.load();
+                }
             })
         },
         // 上传
@@ -494,24 +500,32 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 if(valid){
                     if(this.sampleInfo.sampleid!=''){
                         data.updateSample(this.sampleInfo).then((data)=>{
-                            if(data.data=="null"||data.data==null){
-                                this.$Message.error("参数错误！");
+                            if(data.returnCode==0 || data.returnCode==200){
+                                if(data.data=="null"||data.data==null){
+                                    this.$Message.error("参数错误！");
+                                }else{
+                                    this.$Message.success("样本修改成功！");
+                                    this.load();
+                                    this.uploadDisabled = false;
+                                }
                             }else{
-                                this.$Message.success("样本修改成功！");
-                                this.load();
-                                this.uploadDisabled = false;
+                                this.$Message.error(data.msg);
                             }
                             
                         })
                 }else{
                     data.addSample(this.sampleInfo).then((data)=>{
-                        if(data.data=="null"||data.data==null){
-                            this.$Message.error("参数错误！");
+                        if(data.returnCode==0 || data.returnCode==200){
+                            if(data.data=="null"||data.data==null){
+                                this.$Message.error("参数错误！");
+                            }else{
+                                this.$Message.success("样本添加成功！");
+                                this.load();
+                                this.uploadDisabled = false;
+                                this.samid=data.data.sampleid;
+                            }
                         }else{
-                            this.$Message.success("样本添加成功！");
-                            this.load();
-                            this.uploadDisabled = false;
-                            this.samid=data.data.sampleid;
+                            this.$Message.eeror(data.msg)
                         }
                     })
                 }
@@ -537,11 +551,15 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
                 "productId":"2"
             }
             data.getForldList(obj).then((data)=>{
-                if(M.isArray(data.data)) {
-                    this.fileCategoryList=data.data;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
             })
         },
         // 获得服务列表 /opt/NfsDir/PublicDir/demo/
@@ -557,17 +575,22 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             data.getForldList(obj).then((data)=>{
                     // console.log(data)
-                if(M.isArray(data.data)) {
-                    this.fileServerCategoryList=data.data;
-                }else {
-                    this.$Message.error(data.data)
-                } 
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileServerCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
             })
         },
         addsample(row){//点击添加
             console.log(row)
             this.patid=row.dchPatient.patientid;
             this.sampleEdit=true;
+            this.samid='';
             this.uploadDisabled = true;
             this.sampleInfo={};
         },
@@ -588,13 +611,15 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             console.log(obj)
             data.getFileList(obj).then((data)=>{
-                console.log(data.data)
-                if(data.data==null||data.data=="null"){
-                    this.$Message.error(data.msg);
+                if(data.returnCode || data.returnCode==200){
+                    if(data.data==null||data.data=="null"){
+                        this.$Message.error(data.msg);
+                    }else{
+                        this.samplefile=data.data;
+                    }
                 }else{
-                    this.samplefile=data.data;
+                    this.$Message.error(data.msg)
                 }
-
             })
             // }
             
@@ -638,11 +663,11 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             data.executeSample(obj).then((data)=>{
                 console.log(data)
-                if(data.returnCode==200){
+                if(data.returnCode==200 || data.returnCode==0){
                     // 再次获取列表
                     this.load();
                     this.$Message.success("添加成功")
-                }else if(data.returnCode !=200){
+                }else{
                     this.$Message.error(data.msg)
                 }
             }) 
@@ -662,14 +687,16 @@ import treeGrid from '@/components/treeTable/vue2/TreeGrid'
             }
             data.getProjectList(obj).then((data)=>{
                 this.loadone=false;
-                if(data.data!=null){
-                    this.total=data.data.count;
-                    if(this.pageIndex==1){
-                        this.tabledata=data.data.projectList
-                    }else{
-                        this.tabledata=this.tabledata.concat(data.data.projectList)
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.data!=null){
+                        this.total=data.data.count;
+                        if(this.pageIndex==1){
+                            this.tabledata=data.data.projectList
+                        }else{
+                            this.tabledata=this.tabledata.concat(data.data.projectList)
+                        }
+                        this.tableData3=this.tabledata;
                     }
-                    this.tableData3=this.tabledata;
                 }
                 this.more=true;
                 if(this.total<=20){

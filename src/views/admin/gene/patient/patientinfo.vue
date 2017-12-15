@@ -106,14 +106,19 @@ export default{
             this.$refs[name].validate((valid) => {
                 if(valid){
                     data.addProject(this.basicInfo).then((data)=>{
-                        if(data.data=='null' || data.data==null){
-                            this.$Message.error(data.msg);
-                        }else if(data.msg=="null" || data.msg==null){
-                            this.$Message.error(data.data)
+                        console.log(data)
+                        if(data.returnCode==0 || data.returnCode==200){
+                            if(data.data=='null' || data.data==null){
+                                this.$Message.error(data.msg);
+                            }else if(data.msg=="null" || data.msg==null){
+                                this.$Message.error(data.data)
+                            }else{
+                                this.paid=data.data.patient.patientid;
+                                console.log(this.paid);
+                                this.$router.push('/admin/gene/newsample?paid='+this.paid)
+                            }
                         }else{
-                            this.paid=data.data.patient.patientid;
-                            console.log(this.paid);
-                            this.$router.push('/admin/gene/newsample?paid='+this.paid)
+                            this.$Message.error(data.msg);
                         }
                     }).catch((error)=>{
                         this.show = true;

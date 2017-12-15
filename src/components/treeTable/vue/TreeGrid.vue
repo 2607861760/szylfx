@@ -111,14 +111,19 @@ export default {
             if(flag){
                 flag=false;
                 data.readExcel(obj).then((data)=>{
-                var len=data.data.length;
-                this.$store.state.allfile.length=0;
-                this.$store.state.allfile=data.data;
-                flag=true;
-                this.$router.push('/admin/addfile?productId='+this.url.productId)
-            })
+                    console.log(data)
+                   if(data.returnCode==0 || data.returnCode ==200){
+                        var len=data.data.length;
+                        this.$store.state.allfile.length=0;
+                        this.$store.state.allfile=data.data;
+                        flag=true;
+                        this.$router.push('/admin/addfile?productId='+this.url.productId)
+                   }else{
+                       this.$Message.error(data.msg)
+                   }
+                })
             }
-            },
+        },
         setRow(row) {
             this.$refs.treeTable.setCurrentRow(row)
         },

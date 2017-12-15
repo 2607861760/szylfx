@@ -98,13 +98,22 @@ import {data} from 'api/index.js'
                     "userId":getCookie("userid"),
                     "productId":this.url.productId
                 }
+                console.log(obj)
                 data.getForldList(obj).then((data)=>{
-                    if(data.data.length>0 && M.isArray(data.data)) {
-                        this.localFileCategoryList=data.data;
+                    console.log(data)
+                    if(data.returnCode==0 || data.returnCode==200){
+                        if(data.data.length>0 && M.isArray(data.data)) {
+                            this.localFileCategoryList=data.data;
+                            this.loading=false;
+                        }else {
+                            this.$Message.error(data.data);
+                            this.loading=false;
+                        }
+                    }else{
+                        this.$Message.error(data.msg)
                         this.loading=false;
-                    }else {
-                        this.$Message.error(data.data)
                     }
+                    
                 })
             },
             // 获得硬盘列表
@@ -119,13 +128,18 @@ import {data} from 'api/index.js'
                 }
                 data.getForldList(obj).then((data)=>{
                     console.log(data)
-                    if(data.data.length>0 && M.isArray(data.data)) {
-                        this.fileCategoryList=data.data || [];
-                        this.loading=false;
+                    if(data.returnCode==0 || data.returnCode==200){
+                        if(data.data.length>0 && M.isArray(data.data)) {
+                            this.fileCategoryList=data.data || [];
+                            this.loading=false;
+                        }else {
+                            this.$Message.error(data.data);
+                            this.loading=false;
+                        }
                     }else{
-                        this.$Message.error(data.data)
-                    }
-                    
+                        this.$Message.error(data.msg)
+                        this.loading=false;
+                    }                    
                 })
             }
         },

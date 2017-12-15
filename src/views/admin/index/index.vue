@@ -196,20 +196,27 @@ export default {
             console.log(code) 
             this.load=true;
             login.tgexLogin(code).then((data)=>{
-                if(data.data==null || data.data=="null"){
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.data==null || data.data=="null"){
+                        this.$Message.error(data.msg);
+                        this.load=false;
+                    }else{
+                        M.extend(this.$store.state.currentUser,data.data)
+                        setCookie('email',data.data.user.email,null,null,null);
+                        setCookie('userid',data.data.user.dchUserId,null,null,null);
+                        setCookie('username',data.data.user.username,null,null,null)
+                        this.cusername=getCookie('username');
+                        this.$store.state.uid=data.data.userid;
+                        this.$store.state.code=code;
+                        this.show=true;
+                        this.load=false;
+                    }
+                }else{
                     this.$Message.error(data.msg);
                     this.load=false;
-                }else{
-                    M.extend(this.$store.state.currentUser,data.data)
-                    setCookie('email',data.data.user.email,null,null,"365");
-                    setCookie('userid',data.data.user.dchUserId,null,null,"365");
-                    setCookie('username',data.data.user.username,null,null,"365")
-                    this.cusername=getCookie('username');
-                    this.$store.state.uid=data.data.userid;
-                    this.$store.state.code=code;
-                    this.show=true;
-                    this.load=false;
+                    this.$router.push('/')
                 }
+                
             })
         }else{
             this.load=false;

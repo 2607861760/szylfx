@@ -158,30 +158,34 @@ export default {
                 analysisStep:"1"
             }
             task.getTaskInfoById(obj).then((res)=> {
-                let obj = res.data.jobProcessDataList;
-                // console.log(res);
-                if(obj.length<=0) {
-                    this.qualityShow = false;
-                }else {
-                    M.each(obj,(item) =>{
-                        if(item.tableType=='1') {
-                            // console.log(item);
-                            // 表格数据
-                            this.tableTitle = obj.displayName;
-                            this.tableList = obj[2].files[0].jsonData.data;
-                        }
-                        // 左图内容
-                        else if(item.tableType=='2') {
-                            this.picLeftTitle = item.tableName;
-                            this.picLeftList = item.files;
-                            // console.log(this.picLeftList);
-                        }
-                        // 右图内容
-                        else if (item.tableType=='3') {
-                            this.picRightTitle = item.tableName;
-                            this.picRightList = item.files;
-                        }
-                    }) 
+                if(res.returnCode==0 || res.returnCode==200){
+                    let obj = res.data.jobProcessDataList;
+                    // console.log(res);
+                    if(obj.length<=0) {
+                        this.qualityShow = false;
+                    }else {
+                        M.each(obj,(item) =>{
+                            if(item.tableType=='1') {
+                                // console.log(item);
+                                // 表格数据
+                                this.tableTitle = obj.displayName;
+                                this.tableList = obj[2].files[0].jsonData.data;
+                            }
+                            // 左图内容
+                            else if(item.tableType=='2') {
+                                this.picLeftTitle = item.tableName;
+                                this.picLeftList = item.files;
+                                // console.log(this.picLeftList);
+                            }
+                            // 右图内容
+                            else if (item.tableType=='3') {
+                                this.picRightTitle = item.tableName;
+                                this.picRightList = item.files;
+                            }
+                        }) 
+                    }
+                }else{
+                    this.$Message.error(res.msg)
                 }
                
                            

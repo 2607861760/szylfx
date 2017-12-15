@@ -303,14 +303,18 @@ export default {
             this.batchlist = [];
             task.getBatchList(obj).then((data)=> {
                 // console.log(data)
-                M.each(data.data,(item,index)=>{
-                    var result={};
-                    if(item){
-                        result.value=item;
-                        result.label=item;
-                        this.batchlist.push(result); 
-                    }
-                })
+                if(data.returnCode==0 || data.returnCode==200){
+                    M.each(data.data,(item,index)=>{
+                        var result={};
+                        if(item){
+                            result.value=item;
+                            result.label=item;
+                            this.batchlist.push(result); 
+                        }
+                    })
+                }else{
+                    this.$Message.error(data.msg)
+                }
             }).catch((error)=>{
                 this.$Message.error(data.msg)
             })
@@ -333,11 +337,15 @@ export default {
             }
             // console.log(obj);
             task.getSampleByBatchId(obj).then((data)=>{
-                if(data.data.sampleList.length>0){
-                    this.sampleList=data.data.sampleList;
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.data.sampleList.length>0){
+                        this.sampleList=data.data.sampleList;
+                    }else{
+                        this.$Message.error("无数据")
+                    } 
                 }else{
-                    this.$Message.error("无数据")
-                }            
+                    this.$Message.eeror(data.msg)
+                }           
                 this.jobTotal = data.data.count?data.data.count:0;
             })
         },
@@ -387,16 +395,20 @@ export default {
             console.log(obj);
             task.executeJobBySampleIds(obj).then((data)=>{
                 // console.log(data)
-                if(data.msg==null){
-                    // this.newModel=false;
-                    // 提交完成清空数组
-                    this.selectList = [];
-                    // 提示信息
-                    this.$Message.success(data.data);
-                    // 重新渲染样本列表
-                    // this.getSampleList(this.pageIndex);
-                    // 重新渲染列表
-                    this._getTaskList();
+                if(data.returnCode==0 || data.returnCode==200){
+                    if(data.msg==null){
+                        // this.newModel=false;
+                        // 提交完成清空数组
+                        this.selectList = [];
+                        // 提示信息
+                        this.$Message.success(data.data);
+                        // 重新渲染样本列表
+                        // this.getSampleList(this.pageIndex);
+                        // 重新渲染列表
+                        this._getTaskList();
+                    }else{
+                        this.$Message.error(data.msg)
+                    }
                 }else{
                     this.$Message.error(data.msg)
                 }
@@ -432,10 +444,14 @@ export default {
             }; 
             // console.log(obj);  
             task.mergeJobById(obj).then((res)=> {
-                if(isRemove) {
-                    this._getTaskList();
-                    this.removeModel = false;
-                    this.$Message.success("删除成功！");
+                if(res.returnCode==0 || res.returnCode==200){
+                    if(isRemove) {
+                        this._getTaskList();
+                        this.removeModel = false;
+                        this.$Message.success("删除成功！");
+                    }
+                }else{
+                    this.$Message.error(res.msg)
                 }
             })
         },
@@ -450,10 +466,14 @@ export default {
                 productId:this.productId
             }; 
             task.mergeStopJob(obj).then((res)=> {
-                if(isStop) {
-                    this._getTaskList();
-                    this.stopModel = false;
-                    this.$Message.success("终止任务成功！");
+                if(res.returnCode==0 || res.returnCode==200){
+                    if(isStop) {
+                        this._getTaskList();
+                        this.stopModel = false;
+                        this.$Message.success("终止任务成功！");
+                    }
+                }else{
+                    this.$Message.error(res.msg)
                 }
             })
         },
@@ -489,17 +509,21 @@ export default {
             console.log(obj)
             task.getTaskList(obj).then((res)=> {
                 console.log(res);
-                if(res.data == "null" || res.data == null) {
-                    this.loading=false;
-                    this.tableList = [];
-                }else {
-                    this.total = res.data.count;
-                    if(this.pageIndex==1){
-                        this.tabledata=res.data.jobList;
-                    }else{
-                        this.tabledata=this.tabledata.concat(res.data.jobList)
+                if(res.returnCode==0 || res.returnCode==200){
+                    if(res.data == "null" || res.data == null) {
+                        this.loading=false;
+                        this.tableList = [];
+                    }else {
+                        this.total = res.data.count;
+                        if(this.pageIndex==1){
+                            this.tabledata=res.data.jobList;
+                        }else{
+                            this.tabledata=this.tabledata.concat(res.data.jobList)
+                        }
+                        this.tableList=this.tabledata;
                     }
-                    this.tableList=this.tabledata;
+                }else{
+                    this.$Message.error(data.msg)
                 }
             }).catch((error)=> {
                 this.$Message.success(error.msg);

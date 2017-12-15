@@ -154,29 +154,33 @@ export default {
             // console.log(obj); 
             task.getTaskInfoById(obj).then((res)=> {
                 console.log(JSON.stringify(res));
-                let obj = res.data.jobProcessDataList;
-                if(obj.length<=0) {
-                    this.cleanShow = false;
-                }else {
-                    M.each(obj,(item,index)=> {
-                        if(item.tableType == '4') {
-                            this.picTitle = item.tableName;
-                            this.picList = item.files;
-                        }else {
-                            if(index==0) {
-                                this.tableListFirst = item.files[0].jsonData.data;
-                                this.tableTitleFirst = item.files[0].displayName; 
-                            }else if(index==1) {
-                                // console.log(item);
-                                this.tableListSecond = item.files[0].jsonData.data;
-                                this.tableTitleSecond = item.files[0].displayName;
-                            }else if(index==2) {
-                                console.log(item);
-                                this.tableListThree = item.files[0].jsonData.data;
-                                this.tableTitleThree = item.files[0].displayName;
+                if(res.returnCode==0 || res.returnCode==200){
+                    let obj = res.data.jobProcessDataList;
+                    if(obj.length<=0) {
+                        this.cleanShow = false;
+                    }else {
+                        M.each(obj,(item,index)=> {
+                            if(item.tableType == '4') {
+                                this.picTitle = item.tableName;
+                                this.picList = item.files;
+                            }else {
+                                if(index==0) {
+                                    this.tableListFirst = item.files[0].jsonData.data;
+                                    this.tableTitleFirst = item.files[0].displayName; 
+                                }else if(index==1) {
+                                    // console.log(item);
+                                    this.tableListSecond = item.files[0].jsonData.data;
+                                    this.tableTitleSecond = item.files[0].displayName;
+                                }else if(index==2) {
+                                    console.log(item);
+                                    this.tableListThree = item.files[0].jsonData.data;
+                                    this.tableTitleThree = item.files[0].displayName;
+                                }
                             }
-                        }
-                    }) 
+                        }) 
+                    }
+                }else{
+                    this.$Message.error(res.msg)
                 }
                 
             })

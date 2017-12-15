@@ -91,7 +91,7 @@
                 </FormItem>
             </Form>
             <!--<router-link to="/register" class="now">立即注册</router-link>-->
-            <a @click="clickBtn" href="javascript:;" class="now">三方登录</a>
+            <a @click="clickBtn" href="javascript:;" class="now">第三方登录</a>
         </div>
     </div>
 </div>   
@@ -159,11 +159,15 @@ export default{
                     flag=false;
                     login.jump().then((data)=> {
                     // console.log(data)
-                    let url = data.data;
-                    if(url) {
-                        window.location.href = url;
+                    if(data.returnCode==0 || data.returnCode==200){
+                        let url = data.data;
+                        if(url) {
+                            window.location.href = url;
+                        }else{
+                            this.$Message.error("错误")
+                        }
                     }else{
-                        this.$Message.error("错误")
+                        this.$Message.error(data.msg)
                     }
                     flag=true;
                 })
@@ -204,14 +208,14 @@ export default{
                                 console.log(data)
                                     if(data.returnCode==0 || data.returnCode==200){
                                         M.extend(this.$store.state.currentUser,data.data)
-                                        setCookie('email',data.data.user.email,null,null,"365");
-                                        setCookie('userid',data.data.user.dchUserId,null,null,"365");
-                                        setCookie('passWord',obj.passWord,null,null,"365");
-                                        setCookie('username',data.data.user.username,null,null,"365");
+                                        setCookie('email',data.data.user.email,null,null,null);
+                                        setCookie('userid',data.data.user.dchUserId,null,null,null);
+                                        setCookie('passWord',obj.passWord,null,null,null);
+                                        setCookie('username',data.data.user.username,null,null,null);
                                         if(this.rememberPassword == true) {
-                                            setCookie('rememberPassword',this.rememberPassword,null,null,"365");
+                                            setCookie('rememberPassword',this.rememberPassword,null,null,null);
                                         }else {
-                                            setCookie('rememberPassword',this.rememberPassword,null,null,"365"); 
+                                            setCookie('rememberPassword',this.rememberPassword,null,null,null); 
                                         }
                                         this.$router.push('/admin');
                                         this.load=false;

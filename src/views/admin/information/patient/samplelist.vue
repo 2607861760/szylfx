@@ -368,7 +368,11 @@
         console.log(obj);
         data.getFileList(obj).then((res)=> {
             console.log(res);
-            this.sampleDataList = res.data;
+            if(res.returnCode==0 || res.returnCode==200){
+                this.sampleDataList = res.data;
+            }else{
+                this.$Message.error(res.msg)
+            }
         })
     },
     // 上传失败
@@ -382,9 +386,16 @@
             "productId":"2"
         }
         data.deleteSampleById(obj).then((data)=>{
-            this.$Message.success(data.data);
-            this.removeModel=false;
-            this.getList();
+            if(data.returnCode==0 || data.returnCode==200){
+                this.$Message.success(data.data);
+                this.removeModel=false;
+                this.getList();
+            }else{
+                this.$Message.error(data.msg);
+                this.removeModel=false;
+                this.getList();
+            }
+            
         })
     },
       // tabs切换事件
@@ -422,11 +433,11 @@
             "fileGroupId":"aa",
         }
         data.executeSample(obj).then((data)=>{
-          if(data.returnCode==200){
+          if(data.returnCode==200 || data.returnCode==0){
             // 再次获取列表
               this.load();
               this.$Message.success("添加成功")
-          }else if(data.returnCode !=200){
+          }else{
               this.$Message.error(data.msg)
           }
         })
@@ -454,29 +465,35 @@
             if(valid){
                 if(M.has(this.sampleInfo,'sampleid')==true){
                     data.updateSample(this.sampleInfo).then((data)=>{
-                        if(data.data=="null"||data.data==null){
-                        this.$Message.error("参数错误！");
+                        if(data.returnCode==0 || data.returnCode==200){
+                            if(data.data=="null"||data.data==null){
+                                this.$Message.error("参数错误！");
+                            }else{
+                                this.$Message.success("样本修改成功！");
+                                this.uploadDisabled = false;
+                                this.getList();
+                            }
                         }else{
-                          this.$Message.success("样本修改成功！");
-                          this.uploadDisabled = false;
-                          this.getList();
+                            this.$Message.error(data.msg)
                         }
                   
                     })
                 }else{
                     data.addSample(this.sampleInfo).then((data)=>{
-                        if(data.data=="null"||data.data==null){
-                            this.$Message.error("参数错误！");
-                        }else{
-                            this.$Message.success("样本添加成功！");
-                            this.uploadDisabled = false;
-                            this.getList();
-                            this.samid=data.data.sampleid;
+                        if(data.returnCode==0 || data.returnCode==200){
+                            if(data.data=="null"||data.data==null){
+                                this.$Message.error("参数错误！");
+                            }else{
+                                this.$Message.success("样本添加成功！");
+                                this.uploadDisabled = false;
+                                this.getList();
+                                this.samid=data.data.sampleid;
+                            }
                         }
-                      })
-                    }
-                  }
-            })
+                    })
+                }
+            }
+        })
     },
     edit(index,row){  //点击编辑
         this.sampleid=row.sampleid;
@@ -505,11 +522,15 @@
         }
         data.getForldList(obj).then((data)=>{
             // console.log(data)
-        if(M.isArray(data.data)) {
-            this.fileServerCategoryList=data.data;
-        }else {
-            this.$Message.error(data.data)
-        } 
+            if(data.returnCode==0 || data.returnCode==200){
+                    if(M.isArray(data.data)) {
+                        this.fileServerCategoryList=data.data;
+                    }else {
+                        this.$Message.error(data.data)
+                    } 
+                }else{
+                    this.$Message.error(data.msg)
+                }
       })
     },
     // 获得本地
@@ -524,12 +545,16 @@
         }
         data.getForldList(obj).then((data)=>{
           // console.log(data)
-            if(M.isArray(data.data)) {
-                this.fileCategoryList=data.data;
-                this.loading=false;
-            }else {
-                this.$Message.error(data.data)
-            } 
+            if(data.returnCode==0 || data.returnCode==200){
+                if(M.isArray(data.data)) {
+                    this.fileCategoryList=data.data;
+                    this.loading=false;
+                }else {
+                    this.$Message.error(data.data)
+                } 
+            }else{
+                this.$Message.error(data.msg)
+            }
         })
     },
     getList(){   //获取样本列表
@@ -542,13 +567,17 @@
             "productId":"2"
         }
         data.getSampleList(obj).then((data)=>{
-            if(data.data=="null"||data.data==null){
-                this.listload=false;
+            if(data.returnCode==0 || data.returnCode==0){
+                if(data.data=="null"||data.data==null){
+                    this.listload=false;
+                }else{
+                    this.samplelist=data.data;
+                    this.total=this.samplelist.length;
+                    console.log(this.samplelist);
+                    this.listload=false;
+                }
             }else{
-                this.samplelist=data.data;
-                this.total=this.samplelist.length;
-                console.log(this.samplelist);
-                this.listload=false;
+                this.$Message.error(data.msg)
             }
         })
       }

@@ -135,7 +135,7 @@
                             this.$router.push('/admin/tumour')
                         }
                     }else{
-                        this.$Message.error("上传列表为空！");
+                        this.$Message.error(data.msg);
                     }
                     this.loading=true
                 }).catch((error)=>{

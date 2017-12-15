@@ -79,33 +79,51 @@ export default {
     methods: {
         exit(){
             if(this.$store.state.code==''){
+                // let obj={
+                //     userId:getCookie('userid')
+                // }
+                // data.logout(obj).then((data)=>{
+                //     console.log(data)
+                //     if(data.returnCode==0 || data.returnCode==200){
+                //         M.each(this.$store.state.currentUser,(value,key)=>{
+                //             delete this.$store.state.currentUser[key]
+                //         })
+                //         console.log(this.$store.state.currentUser)
+                        this.$router.push("/");
+                        delCookie("userid");
+                        delCookie("email");
+                        delCookie("password");
+                        delCookie("rememberPassword");
+                        delCookie("username");
+                        this.currentUserName='';
+                //     }else{
+                //         this.$Message.error(data.msg)
+                //     }
+                // }).catch((error)=>{
+
+                // })
+            }else{
                 let obj={
                     userId:getCookie('userid')
                 }
                 data.logout(obj).then((data)=>{
-                    M.each(this.$store.state.currentUser,(value,key)=>{
-                        delete this.$store.state.currentUser[key]
-                    })
-                    console.log(this.$store.state.currentUser)
-                    this.$router.push("/");
-                    delCookie("userid");
-                    delCookie("email");
-                    delCookie("password");
-                    delCookie("rememberPassword");
-                    delCookie("username");
-                    this.currentUserName='';
+                    if(data.returnCode==0 || data.returnCode==200){
+                        delCookie("userid");
+                        delCookie("email");
+                        delCookie("password");
+                        delCookie("rememberPassword");
+                        delCookie("username");
+                        this.$store.state.code='';
+                        this.currentUserName='';
+                        window.location.href='https://auth-dch-qa.genecards.cn/account/LogOff/?returnUrl=http://10.131.101.159:8080&app=DCHDM';
+                        // window.location.href='https://auth-dch-qa.genecards.cn/account/LogOff/?returnUrl=http://42.123.124.204:8081&app=DCHDM';
+                    }else{
+                        this.$Message.error(data.msg)
+                    }
                 }).catch((error)=>{
 
                 })
-            }else{
-                delCookie("userid");
-                delCookie("email");
-                delCookie("password");
-                delCookie("rememberPassword");
-                delCookie("username");
-                this.$store.state.code='';
-                this.currentUserName='';
-                window.location.href='https://auth-dch-qa.genecards.cn/account/LogOff/?returnUrl=http://42.123.124.204:8081&app=DCHDM';
+                
             }
         },
         userInfo(){

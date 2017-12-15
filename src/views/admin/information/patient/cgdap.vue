@@ -36,13 +36,18 @@
                 }
                 console.log(obj)
                 data.vishuourl(obj).then((data)=>{
+                    console.log(data)
                     this.loading=false;
-                    if(data.data=="null" || data.data==null){
-                        // this.$Message.error(data.msg)
-                        this.show=false;
+                    if(data.returnCode==0 || data.returnCode==200){
+                        if(data.data=="null" || data.data==null){
+                            // this.$Message.error(data.msg)
+                            this.show=false;
+                        }else{
+                            this.urlSrc=data.data;
+                            console.log(this.urlSrc)
+                        }
                     }else{
-                        this.urlSrc=data.data;
-                        console.log(this.urlSrc)
+                        this.$Message.error(data.msg)
                     }
                 }).catch((error)=>{
                     this.loading=false;

@@ -205,7 +205,7 @@ export default {
                         if(data.returnCode==0 || data.returnCode==200){
                             this.$router.push('/login')
                         }else{
-                            this.$Message.error(data.data)
+                            this.$Message.error(data.msg)
                         }
                     })
                 }
